@@ -231,7 +231,7 @@
     
     <div class="container">
         <div class="update-time">
-            📡 最后更新：<span id="last-update">2026-03-05 11:15 (GMT+8)</span> | 自动刷新中
+            📡 最后更新：<span id="last-update">2026-03-05 11:28 (GMT+8)</span> | 自动刷新中
         </div>
         
         <div class="timeline" id="timeline">
@@ -247,65 +247,7 @@
     
     <script>
         // 模拟新闻数据 - 实际部署时从 API 获取
-        const newsData = [
-            {
-                id: 1,
-                time: "2026-03-05 09:30",
-                title: "以色列对德黑兰发动新一轮空袭",
-                content: "以军称已摧毁300个伊朗导弹发射器，并打击了一处秘密核武器研发设施。德黑兰多个地区听到爆炸声。",
-                source: "BBC News",
-                sourceUrl: "https://www.bbc.com/news",
-                tags: ["military"],
-                urgent: true
-            },
-            {
-                id: 2,
-                time: "2026-03-05 08:15",
-                title: "美军潜艇击沉伊朗军舰",
-                content: "美国防长赫格塞斯确认，美军潜艇击沉了位于斯里兰卡以南的伊朗军舰'Iris Dena'。这是美军首次直接参与海上打击。",
-                source: "Reuters",
-                sourceUrl: "https://www.reuters.com",
-                tags: ["military"],
-                urgent: true
-            },
-            {
-                id: 3,
-                time: "2026-03-05 06:00",
-                title: "约5万美军部署中东",
-                content: "五角大楼确认约5万美军现部署在中东地区参与对伊作战，更多战机正在增援。伊朗称将'以牙还牙'。",
-                source: "Al Jazeera",
-                sourceUrl: "https://www.aljazeera.com",
-                tags: ["military", "diplomacy"]
-            },
-            {
-                id: 4,
-                time: "2026-03-05 04:20",
-                title: "伊朗互联网持续被封锁",
-                content: "德黑兰巴斯基部队向居民楼开枪，全国互联网服务持续中断，国际通讯受限。抗议者与安全部队发生冲突。",
-                source: "NYT",
-                sourceUrl: "https://www.nytimes.com",
-                tags: ["diplomacy"]
-            },
-            {
-                id: 5,
-                time: "2026-03-05 02:00",
-                title: "油价突破79美元/桶",
-                content: "布伦特原油突破79美元/桶，涨幅9%，因中东冲突威胁全球能源供应。分析师警告可能冲击100美元。",
-                source: "Reuters",
-                sourceUrl: "https://www.reuters.com",
-                tags: ["economy"]
-            },
-            {
-                id: 6,
-                time: "2026-03-04 23:30",
-                title: "伊朗向以色列发射导弹",
-                content: "伊朗革命卫队向以色列发射多枚弹道导弹，以色列铁穹系统拦截大部分。双方交火持续升级。",
-                source: "BBC News",
-                sourceUrl: "https://www.bbc.com/news",
-                tags: ["military"],
-                urgent: true
-            }
-        ];
+        const newsData = [];
         
         // 渲染时间线
         function renderTimeline() {
