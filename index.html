@@ -231,7 +231,7 @@
     
     <div class="container">
         <div class="update-time">
-            📡 最后更新：<span id="last-update">2026-03-05 11:28 (GMT+8)</span> | 自动刷新中
+            📡 最后更新：<span P26-03-05 11:32 (GMT+8)</span> | 自动刷新中
         </div>
         
         <div class="timeline" id="timeline">
@@ -247,7 +247,128 @@
     
     <script>
         // 模拟新闻数据 - 实际部署时从 API 获取
-        const newsData = [];
+        const newsData = [
+    {
+        "id": 1,
+        "time": "2026-03-05 11:32",
+        "title": "Everything we know on Day 5 of the US and Israel’s war with Iran - CNN",
+        "content": "The latest Middle East conflict continues spiraling days after Israel and the US launched their joint operation on Iran, triggering retaliatory strikes on Israel and neighboring Gu...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.cnn.com/2026/03/03/middleeast/iran-us-israel-what-we-know-intl-hnk",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    },
+    {
+        "id": 2,
+        "time": "2026-03-05 11:32",
+        "title": "How Iran fights an imposed war - Al Jazeera",
+        "content": "In Iranian political discourse, major conflicts are often described as “imposed wars” – wars that Iran believes have been forced upon it by external powers rather than chosen by Te...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.aljazeera.com/opinions/2026/3/4/how-iran-fights-an-imposed-war",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    },
+    {
+        "id": 3,
+        "time": "2026-03-05 11:32",
+        "title": "Middle East crisis live: Israel launches ‘wave of strikes’ on Tehran as Iran prepares for Ali Khamenei’s funeral - The Guardian",
+        "content": "Middle East crisis liveUS-Israel war on Iran. A UN body said ​it was **“deeply disturbed”** by the deaths of children during the war in the Middle East, after ‌the bombing of a gir...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.theguardian.com/world/live/2026/mar/04/iran-war-live-updates-us-israel-latest-news-strait-of-hormuz-middle-east-crisis?page=with:block-69a80bbd8f08551fed591320",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    },
+    {
+        "id": 4,
+        "time": "2026-03-05 11:32",
+        "title": "U.S Israeli war with Iran intensifies as conflict spreads - CBS News",
+        "content": "* Book Club with Mary Calvi. * Class Act with Chris Wragge. * The 5:33 | Legacy of the LIRR Massacre. * On The Dot with David Schechter: Wildfires & Climate Change. * Climate Chang...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.cbsnews.com/newyork/video/u-s-israeli-war-with-iran-intensifies-as-conflict-spreads/",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    },
+    {
+        "id": 5,
+        "time": "2026-03-05 11:32",
+        "title": "US and Israel step up attacks as war with Iran engulfs region - Al Jazeera",
+        "content": "# US and Israel step up attacks as war with Iran engulfs region. Multiple locations across Iran are being bombarded, and Tehran is carrying out retaliatory attacks across the regio...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.aljazeera.com/news/2026/3/4/israel-iran-continue-attacks-as-war-enters-its-fifth-day-engulfs-region",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    },
+    {
+        "id": 6,
+        "time": "2026-03-05 11:32",
+        "title": "Middle East crisis live: Israel launches ‘wave of strikes’ on Tehran; nearly 150 reported missing after Iranian warship sunk - The Guardian",
+        "content": "Middle East crisis liveUS-Israel war on Iran. # Middle East crisis live: US submarine sank Iranian warship, Hegseth confirms; Israel launches ‘wave of strikes’ on Tehran. * Israel-...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.theguardian.com/world/live/2026/mar/04/iran-war-live-updates-us-israel-latest-news-strait-of-hormuz-middle-east-crisis?page=with:block-69a802de8f083ffba587ccaf",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    },
+    {
+        "id": 7,
+        "time": "2026-03-05 11:32",
+        "title": "Israel carries out fresh strikes on Tehran and Beirut as Iran targets US bases in Gulf - The Guardian",
+        "content": "# Israel carries out fresh strikes on Tehran and Beirut as Iran targets US bases in Gulf. Israel has carried out another wave of strikes on Tehran and Beirut while Iranian missiles...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.theguardian.com/world/2026/mar/04/israel-fresh-strikes-tehran-beirut-iran-targets-us-bases-gulf",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    },
+    {
+        "id": 8,
+        "time": "2026-03-05 11:32",
+        "title": "Middle East crisis live: Israel launches ‘wave of strikes’ on Tehran as Iran prepares for Ali Khamenei’s funeral - The Guardian",
+        "content": "Middle East crisis live: Israel launches ‘wave of strikes’ on Tehran as Iran prepares for Ali Khamenei’s funeral. Middle East crisis live: Israel launches ‘wave of strikes’ on Tehr...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.theguardian.com/world/live/2026/mar/04/iran-war-live-updates-us-israel-latest-news-strait-of-hormuz-middle-east-crisis",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    },
+    {
+        "id": 9,
+        "time": "2026-03-05 11:32",
+        "title": "Middle East crisis live: US submarine sank Iranian warship, Hegseth says; Israel launches fresh strikes on Tehran - The Guardian",
+        "content": "Skip to navigationSkip to key eventsSkip to navigation. Middle East crisis liveUS-Israel war on Iran. # Middle East crisis live: US submarine sank Iranian warship, Hegseth says; Is...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.theguardian.com/world/live/2026/mar/04/iran-war-live-updates-us-israel-latest-news-strait-of-hormuz-middle-east-crisis?page=with:block-69a81ae98f082c2919cc81a5",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    },
+    {
+        "id": 10,
+        "time": "2026-03-05 11:32",
+        "title": "'We deserve a normal life,' Iranians tell BBC, as US warns it will strike deeper into country - BBC",
+        "content": "* Israel says it has intercepted new missiles being launched by Iran, and a three-day funeral ceremony for Iran's ex-Supreme Leader Ayatollah Ali Khamenei has been postponed. 2. ##...",
+        "source": "Unknown",
+        "sourceUrl": "https://www.bbc.com/news/live/c62gg44d53xt",
+        "tags": [
+            "military"
+        ],
+        "urgent": true
+    }
+];
         
         // 渲染时间线
         function renderTimeline() {
