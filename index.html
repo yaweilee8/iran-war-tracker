@@ -374,12 +374,12 @@
         function renderTimeline() {
             const timeline = document.getElementById('timeline');
             timeline.innerHTML = newsData.map(item => `
-                <div class="timeline-item ${item.urgent ? 'urgent' : ''}">
+                <div class="timeline-item ${item.urgent ? 'urgent' : ''}" onclick="window.open('${item.sourceUrl}', '_blank')" style="cursor: pointer;">
                     <div class="time">📅 ${item.time}</div>
                     <div class="title">${item.urgent ? '🔴 ' : ''}${item.title}</div>
                     <div class="content">${item.content}</div>
                     <div class="source">
-                        📰 来源：<a href="${item.sourceUrl}" target="_blank">${item.source}</a>
+                        📰 来源：<a href="${item.sourceUrl}" target="_blank" onclick="event.stopPropagation()">${item.source}</a>
                     </div>
                     <div>
                         ${item.tags.map(tag => `<span class="tag ${tag}">${getTagLabel(tag)}</span>`).join('')}
