@@ -1,130 +1,128 @@
 #!/bin/bash
 # Iran War Tracker - 自动新闻更新脚本
-# 每30分钟运行一次，抓取最新新闻并更新网站
-
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+PROJECT_DIR="/Users/yawei/.openclaw/workspace/iran-war-tracker"
 LOG_FILE="$PROJECT_DIR/logs/update.log"
-DATA_FILE="$PROJECT_DIR/data/news-data.json"
 HTML_FILE="$PROJECT_DIR/index.html"
+TAVILY_API_KEY="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"
 
-# API Keys
-TAVILY_API_KEY="${TAVILY_API_KEY:-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}"
-
-# 确保目录存在
 mkdir -p "$PROJECT_DIR/logs"
-mkdir -p "$PROJECT_DIR/data"
 
-log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
-}
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] 开始更新..." >> "$LOG_FILE"
 
-log "开始更新新闻数据..."
-
-# 使用 Tavily API 抓取新闻
+# 抓取新闻
 RESPONSE=$(curl -s -X POST "https://api.tavily.com/search" \
     -H "Content-Type: application/json" \
     -d "{
         \"api_key\": \"$TAVILY_API_KEY\",
-        \"query\": \"Iran Israel war conflict latest news today\",
+        \"query\": \"Iran Israel war conflict latest news\",
         \"topic\": \"news\",
         \"days\": 1,
-        \"max_results\": 15,
-        \"include_answer\": true,
-        \"search_depth\": \"advanced\"
-    }" 2>/dev/null || echo '{"results": []}')
+        \"max_results\": 10,
+        \"search_depth\": \"basic\"
+    }")
 
-# 检查是否有结果
-if [ -z "$RESPONSE" ] || [ "$RESPONSE" = "null" ]; then
-    log "❌ API 返回空数据"
-    exit 1
-fi
+# 保存响应到临时文件
+RESPONSE_FILE=$(mktemp)
+echo "$RESPONSE" > "$RESPONSE_FILE"
 
-# 保存原始数据
-echo "$RESPONSE" > "$DATA_FILE"
-
-# 解析并生成新闻数据
-NEWS_JSON=$(echo "$RESPONSE" | python3 << 'EOF'
+# 使用 Python 更新 HTML
+python3 - "$RESPONSE_FILE" "$HTML_FILE" << 'PYSCRIPT'
 import json
+import re
 import sys
 from datetime import datetime
+from urllib.parse import urlparse
+
+def extract_source(url):
+    """从 URL 提取域名作为来源"""
+    try:
+        domain = urlparse(url).netloc
+        # 移除 www. 前缀
+        if domain.startswith('www.'):
+            domain = domain[4:]
+        # 移除 .com 等后缀，只保留主名
+        parts = domain.split('.')
+        if len(parts) >= 2:
+            return parts[0].capitalize()
+        return domain.capitalize()
+    except:
+        return 'Unknown'
+
+response_file = sys.argv[1]
+html_file = sys.argv[2]
 
 try:
-    data = json.load(sys.stdin)
+    with open(response_file, 'r') as f:
+        data = json.load(f)
+    
     results = data.get('results', [])
     
     news_items = []
-    for i, item in enumerate(results[:15], 1):
+    for i, item in enumerate(results[:10], 1):
+        title = item.get('title', 'No title')
+        content = item.get('content', '')[:180] + '...' if item.get('content') else 'No content'
+        url = item.get('url', '#')
+        
+        # 从 URL 提取来源
+        source = extract_source(url)
+        
+        # 判断标签
+        title_lower = title.lower()
+        if any(kw in title_lower for kw in ['attack', 'strike', 'missile', 'war', 'kill']):
+            tags = ['military']
+            urgent = True
+        elif any(kw in title_lower for kw in ['oil', 'price', 'market', 'stock']):
+            tags = ['economy']
+            urgent = False
+        else:
+            tags = ['diplomacy']
+            urgent = False
+        
         news_items.append({
             "id": i,
             "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "title": item.get('title', 'No title'),
-            "content": (item.get('content', '')[:200] + '...') if item.get('content') else 'No content',
-            "source": item.get('source', 'Unknown'),
-            "sourceUrl": item.get('url', '#'),
-            "tags": ["military"] if any(kw in item.get('title', '').lower() for kw in ['attack', 'strike', 'missile', 'war']) else ["diplomacy"],
-            "urgent": any(kw in item.get('title', '').lower() for kw in ['attack', 'strike', 'kill', 'destroy'])
+            "title": title,
+            "content": content,
+            "source": source,
+            "sourceUrl": url,
+            "tags": tags,
+            "urgent": urgent
         })
     
-    print(json.dumps(news_items, indent=2, ensure_ascii=False))
+    # 读取并更新 HTML
+    with open(html_file, 'r', encoding='utf-8') as f:
+        html = f.read()
+    
+    # 替换新闻数据
+    news_json = json.dumps(news_items, indent=4, ensure_ascii=False)
+    html = re.sub(r'const newsData = \[.*?\];', f'const newsData = {news_json};', html, flags=re.DOTALL)
+    
+    # 更新时间
+    time_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+    html = re.sub(r'(id="last-update">)[^<]+', f'\\1{time_str} (GMT+8)', html)
+    
+    with open(html_file, 'w', encoding='utf-8') as f:
+        f.write(html)
+    
+    print(f"Updated {len(news_items)} news items")
+    
 except Exception as e:
-    print('[]')
-    sys.stderr.write(f"Error: {e}\n")
-EOF
-)
+    print(f"Error: {e}")
+    import traceback
+    traceback.print_exc()
+    sys.exit(1)
+PYSCRIPT
 
-# 更新 HTML 文件
-python3 << EOF
-import json
-import re
+rm -f "$RESPONSE_FILE"
 
-# 读取新闻数据
-news_data = json.loads('''$NEWS_JSON''')
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] 更新完成" >> "$LOG_FILE"
 
-# 读取 HTML
-with open('$HTML_FILE', 'r', encoding='utf-8') as f:
-    html = f.read()
-
-# 替换新闻数据
-news_data_str = json.dumps(news_data, indent=4, ensure_ascii=False)
-
-# 使用正则替换 newsData
-pattern = r'const newsData = \[.*?\];'
-replacement = f'const newsData = {news_data_str};'
-new_html = re.sub(pattern, replacement, html, flags=re.DOTALL)
-
-# 更新时间
-from datetime import datetime
-time_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-new_html = new_html.replace(
-    'id="last-update"',
-    f'id="last-update"'
-)
-new_html = re.sub(
-    r'id="last-update"\u003e.*?\u003c/span\u003e',
-    f'id="last-update"\u003e{time_str} (GMT+8)\u003c/span\u003e',
-    new_html
-)
-
-# 保存
-with open('$HTML_FILE', 'w', encoding='utf-8') as f:
-    f.write(new_html)
-
-print(f"✅ 更新了 {len(news_data)} 条新闻")
-EOF
-
-log "✅ 新闻更新完成: $(echo '$NEWS_JSON' | grep -c 'id') 条"
-
-# 提交到 Git（如果在 Git 仓库中）
-if [ -d "$PROJECT_DIR/.git" ]; then
-    cd "$PROJECT_DIR"
-    git add index.html data/news-data.json
-    git diff --quiet && git diff --staged --quiet || {
-        git commit -m "Auto-update: $(date '+%Y-%m-%d %H:%M')"
-        git push origin main 2>/dev/null || log "⚠️ Git push 失败"
-    }
-fi
-
-log "✅ 更新流程完成"
+# Git 提交
+cd "$PROJECT_DIR"
+git add index.html
+git diff --quiet && git diff --staged --quiet || {
+    git commit -m "Auto-update: $(date '+%Y-%m-%d %H:%M')" > /dev/null 2>&1
+    git push origin main 2>/dev/null || echo "Push skipped"
+}
