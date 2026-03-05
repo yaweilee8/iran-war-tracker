@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>伊朗战争实时追踪 | Iran War Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .status-bar {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .status-item {
+            text-align: center;
+        }
+        
+        .status-item .label {
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+        
+        .status-item .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #c41e3a, #8b0000);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .timeline-item:hover {
+            transform: translateX(5px);
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 25px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #c41e3a;
+            border: 3px solid #1a1a2e;
+        }
+        
+        .timeline-item.urgent::before {
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+        
+        .time {
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .content {
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        
+        .source {
+            font-size: 0.85em;
+            color: #666;
+        }
+        
+        .source a {
+            color: #4da6ff;
+            text-decoration: none;
+        }
+        
+        .source a:hover {
+            text-decoration: underline;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            margin-right: 8px;
+            margin-top: 10px;
+        }
+        
+        .tag.military {
+            background: #8b0000;
+            color: #fff;
+        }
+        
+        .tag.diplomacy {
+            background: #1e3a8b;
+            color: #fff;
+        }
+        
+        .tag.economy {
+            background: #065f46;
+            color: #fff;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 50px;
+            color: #666;
+        }
+        
+        .update-time {
+            text-align: center;
+            padding: 15px;
+            background: rgba(196, 30, 58, 0.1);
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(196, 30, 58, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .status-bar {
+                gap: 15px;
+            }
+            
+            .timeline {
+                padding-left: 20px;
+            }
+            
+            .timeline-item::before {
+                left: -26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🔥 伊朗战争实时追踪</h1>
+        <p>Iran-Israel War Real-time Tracker | Day <span id="war-day">6</span></p>
+    </header>
+    
+    <div class="status-bar">
+        <div class="status-item">
+            <div class="label">冲突天数</div>
+            <div class="value" id="days">6</div>
+        </div>
+        <div class="status-item">
+            <div class="label">最新事件</div>
+            <div class="value">2小时前</div>
+        </div>
+        <div class="status-item">
+            <div class="label">数据来源</div>
+            <div class="value" style="font-size: 1.2em;">BBC / Reuters / Al Jazeera</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="update-time">
+            📡 最后更新：<span id="last-update">2026-03-05 11:15 (GMT+8)</span> | 自动刷新中
+        </div>
+        
+        <div class="timeline" id="timeline">
+            <!-- 时间线项目将通过 JavaScript 动态加载 -->
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p>⚠️ 免责声明：本网站仅聚合公开新闻来源，不构成军事或投资建议</p>
+        <p>数据来源：BBC, Reuters, Al Jazeera, NYT | 仅供信息参考</p>
+        <p style="margin-top: 10px;">© 2026 Iran War Tracker</p>
+    </footer>
+    
+    <script>
+        // 模拟新闻数据 - 实际部署时从 API 获取
+        const newsData = [
+            {
+                id: 1,
+                time: "2026-03-05 09:30",
+                title: "以色列对德黑兰发动新一轮空袭",
+                content: "以军称已摧毁300个伊朗导弹发射器，并打击了一处秘密核武器研发设施。德黑兰多个地区听到爆炸声。",
+                source: "BBC News",
+                sourceUrl: "https://www.bbc.com/news",
+                tags: ["military"],
+                urgent: true
+            },
+            {
+                id: 2,
+                time: "2026-03-05 08:15",
+                title: "美军潜艇击沉伊朗军舰",
+                content: "美国防长赫格塞斯确认，美军潜艇击沉了位于斯里兰卡以南的伊朗军舰'Iris Dena'。这是美军首次直接参与海上打击。",
+                source: "Reuters",
+                sourceUrl: "https://www.reuters.com",
+                tags: ["military"],
+                urgent: true
+            },
+            {
+                id: 3,
+                time: "2026-03-05 06:00",
+                title: "约5万美军部署中东",
+                content: "五角大楼确认约5万美军现部署在中东地区参与对伊作战，更多战机正在增援。伊朗称将'以牙还牙'。",
+                source: "Al Jazeera",
+                sourceUrl: "https://www.aljazeera.com",
+                tags: ["military", "diplomacy"]
+            },
+            {
+                id: 4,
+                time: "2026-03-05 04:20",
+                title: "伊朗互联网持续被封锁",
+                content: "德黑兰巴斯基部队向居民楼开枪，全国互联网服务持续中断，国际通讯受限。抗议者与安全部队发生冲突。",
+                source: "NYT",
+                sourceUrl: "https://www.nytimes.com",
+                tags: ["diplomacy"]
+            },
+            {
+                id: 5,
+                time: "2026-03-05 02:00",
+                title: "油价突破79美元/桶",
+                content: "布伦特原油突破79美元/桶，涨幅9%，因中东冲突威胁全球能源供应。分析师警告可能冲击100美元。",
+                source: "Reuters",
+                sourceUrl: "https://www.reuters.com",
+                tags: ["economy"]
+            },
+            {
+                id: 6,
+                time: "2026-03-04 23:30",
+                title: "伊朗向以色列发射导弹",
+                content: "伊朗革命卫队向以色列发射多枚弹道导弹，以色列铁穹系统拦截大部分。双方交火持续升级。",
+                source: "BBC News",
+                sourceUrl: "https://www.bbc.com/news",
+                tags: ["military"],
+                urgent: true
+            }
+        ];
+        
+        // 渲染时间线
+        function renderTimeline() {
+            const timeline = document.getElementById('timeline');
+            timeline.innerHTML = newsData.map(item => `
+                <div class="timeline-item ${item.urgent ? 'urgent' : ''}">
+                    <div class="time">📅 ${item.time}</div>
+                    <div class="title">${item.urgent ? '🔴 ' : ''}${item.title}</div>
+                    <div class="content">${item.content}</div>
+                    <div class="source">
+                        📰 来源：<a href="${item.sourceUrl}" target="_blank">${item.source}</a>
+                    </div>
+                    <div>
+                        ${item.tags.map(tag => `<span class="tag ${tag}">${getTagLabel(tag)}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getTagLabel(tag) {
+            const labels = {
+                'military': '军事',
+                'diplomacy': '外交',
+                'economy': '经济'
+            };
+            return labels[tag] || tag;
+        }
+        
+        // 计算战争天数
+        function calculateWarDays() {
+            const startDate = new Date('2026-02-28'); // 假设战争开始日期
+            const now = new Date();
+            const diff = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+            document.getElementById('days').textContent = diff;
+            document.getElementById('war-day').textContent = diff;
+        }
+        
+        // 更新最后更新时间
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('zh-CN', { 
+                timeZone: 'Asia/Shanghai',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('last-update').textContent = timeString + ' (GMT+8)';
+        }
+        
+        // 初始化
+        renderTimeline();
+        calculateWarDays();
+        updateTime();
+        
+        // 每分钟更新时间
+        setInterval(updateTime, 60000);
+        
+        // 每5分钟刷新数据（实际部署时从API获取）
+        setInterval(() => {
+            console.log('刷新数据...');
+            // 这里应该调用API获取最新新闻
+        }, 300000);
+    </script>
+</body>
+</html>

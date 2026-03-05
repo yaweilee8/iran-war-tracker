@@ -1,0 +1,34 @@
+name: Update News Data
+
+on:
+  schedule:
+    # 每 30 分钟更新一次
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Fetch latest news
+        run: node scripts/fetch-news.js
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+      
+      - name: Commit and push
+        run: |
+          git config user.name 'GitHub Actions'
+          git config user.email 'actions@github.com'
+          git add .
+          git diff --quiet && git diff --staged --quiet || git commit -m 'Update news data'
+          git push
